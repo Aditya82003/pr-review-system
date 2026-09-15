@@ -1,0 +1,22 @@
+[project]
+name = "webhook-receiver"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Aditya Kashyap", email = "adityaraikwar12789@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+    "pydantic>=2.13.5",
+    "redis>=8.1.0",
+    "uvicorn[standard]>=0.53.0",
+]
+
+[project.scripts]
+webhook-receiver = "webhook_receiver:main"
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13.0"]
+build-backend = "uv_build"

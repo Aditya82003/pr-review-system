@@ -1,0 +1,76 @@
+.env
+.env.*
+!.env.example
+
+# GitHub App private key
+*.pem
+*.key
+
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+
+.venv/
+venv/
+env/
+
+
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checkers / linters
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Local database / volumes
+# =========================
+postgres-data/
+pgdata/
+redis-data/
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+*.tmp
