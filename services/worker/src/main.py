@@ -5,8 +5,12 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from db.database import SessionLocal,engine
 from db.models.review_job import ReviewJob,JobStatus
+from db.base import Base
+from config import settings
 
-queue = redis.from_url("redis://redis:6379/0")
+Base.metadata.create_all(bind=engine)
+ 
+queue = redis.from_url(settings.redis_url,socket_timeout=None)
 
 
 def process_job(job_payload:dict):
@@ -45,29 +49,50 @@ def process_job(job_payload:dict):
     
     # ab yaha muje is job ko sandbox main dalna hai todo
     
+# def _worker_loop():
+#     while True:
+#         result=queue.brpop("review-jobs",timeout=5)
+#         if result is None:
+#             continue
+#         _,raw=result
+#         print(raw)
+#         try:
+#             process_job(json.loads(raw))
+#         except Exception as e:
+#             print(f"Error processing job: {e}")
+
 def _worker_loop():
     while True:
-        _,raw=queue.brpop("review-jobs")
-        print(raw)
         try:
+            print("Woker started and waiting for job ", flush=True)
+            _,raw = queue.brpop("job")
+
+            print("Received job:", raw,flush=True)
+
             process_job(json.loads(raw))
+
+        except redis.exceptions.TimeoutError as e:
+            print(f"Redis timeout: {e}")
+            continue
+
         except Exception as e:
-            print(f"Error processing job: {e}")
+            print(f"Worker error: {e}")
+            continue
         
         
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
-    print("Starting server")
+    print("Starting server",flush=True)
     
     worker_thread = threading.Thread(
         target=_worker_loop,
-        deaemon=True
+        daemon=True
     )
     worker_thread.start()
-    print("Server started")
+    print("Server started",flush=True)
     yield
-    print("Shutting down server")
+    print("Shutting down server",flush=True)
     
     
 app = FastAPI(lifespan=lifespan)

@@ -33,7 +33,7 @@ class ReviewJob(Base):
         nullable=False
         )
     installation_id:Mapped[int] = mapped_column(
-        String,
+        Integer,
         nullable=False
         )
     status:Mapped[JobStatus] = mapped_column(
@@ -46,9 +46,8 @@ class ReviewJob(Base):
         nullable=True
         )
     created_at:Mapped[datetime] = mapped_column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda:datetime.now(timezone.utc),
-        default=datetime
         )
     finished_at:Mapped[datetime] = mapped_column(
         DateTime,
