@@ -1,8 +1,7 @@
-from pydantic import BaseModel
-class setting(BaseModel):
-    github_app_id:str="asdfg"
-    github_app_private_key_path:str=""
-    github_webhook_secret:str="mySecretKey"
+from pydantic_settings import BaseSettings
+class setting(BaseSettings):
+    github_app_id:str
+    github_webhook_secret:str
     
     redis_url:str="redis://redis:6379/0"
     

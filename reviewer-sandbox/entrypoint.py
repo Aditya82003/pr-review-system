@@ -1,9 +1,13 @@
 import os
 import subprocess
 import sys
+import asyncio
+from agent.agent import run_review
 sys.path.append("/app")
 
 WORKINGDIR = "/workspace/repo"
+
+#this will clone your repo and pr into the repo folder
 def clone_pr():
     repo = os.environ["REPO_FULL_NAME"]
     pr_number = os.environ["PR_NUMBER"]
@@ -20,7 +24,11 @@ def main():
     job_id = os.environ["JOB_ID"]
     try:
         clone_pr()
-        #todo
+        raw_finding,too_call_log=asyncio.run(run_review())
+        
+        
+        
+        
     except Exception as e:
         print(f"Error cloning PR: {e}")
     

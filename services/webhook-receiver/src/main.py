@@ -5,26 +5,26 @@ import json
 import redis
 from fastapi import FastAPI,Request,HTTPException,status
 
-from config.config import setting
+from config.config import settings
 
 app = FastAPI()
-redis = redis.from_url(setting.redis_url)
+redis_clinet = redis.from_url(settings.redis_url)
 
-REVELANT_ACTIONS = ["opened","closed"]
+RELEVANT_ACTIONS = ["opened", "synchronize", "reopened"]
 
-def verify_signature(body,signature_header:str | None):
+def verify_signature(body:bytes,signature_header:str | None):
     if not signature_header or not signature_header.startswith("sha256="):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid signature header")
     
-    expected = "sha256=" + hmac.new(setting.encode(),body,hashlib.sha256).hexdigest()
+    expected = "sha256=" + hmac.new(settings.github_webhook_secret.encode(),body,hashlib.sha256).hexdigest()
 
     if not hmac.compare_digest(expected,signature_header):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid signature")
 
 
-@app.post('/webhookk/github')
+@app.post('/webhook/github')
 async def github_webhook(request:Request):
-    body = request.body()
+    body = await request.body()
     #it verify the header it my calculate header is match then it verify the signature
     verify_signature(body,request.headers.get("X-Hub-Signature-256"))
     
@@ -34,7 +34,7 @@ async def github_webhook(request:Request):
     
     if event_type != "pull_request":
         return {"status":"ignored","reason":"not a pull request"}
-    if payload.get("action") not in REVELANT_ACTIONS:
+    if payload.get("action") not in RELEVANT_ACTIONS:
         return {"status":"ignored","reason":"not an action we care about"}
     
     job ={
@@ -43,8 +43,9 @@ async def github_webhook(request:Request):
         "head_sha": payload["pull_request"]["head"]["sha"],
         "installation_id": payload["installation"]["id"],
     }
+    print(f"pr job: {job}")
     
-    redis.lpush("job",json.dumps(job))
+    redis_clinet.lpush("job",json.dumps(job))
     
     return {"status":"queued","pr":job["pr_number"]}
 
