@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 import asyncio
-from agent.agent import run_review
+from agent.agent import _run_review
 sys.path.append("/app")
 
 WORKINGDIR = "/workspace/repo"
@@ -24,11 +24,8 @@ def main():
     job_id = os.environ["JOB_ID"]
     try:
         clone_pr()
-        raw_finding,too_call_log=asyncio.run(run_review())
-        
-        
-        
-        
+        raw_finding,tool_call_log=asyncio.run(_run_review())
+        print(f"raw_finding: {raw_finding}, tool_call_log: {tool_call_log}",flush=True)
     except Exception as e:
         print(f"Error cloning PR: {e}")
     

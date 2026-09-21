@@ -83,4 +83,22 @@ async def _run_review()->tuple[list[dict],dict]:
             for call in tool_uses:
                 label,tool_name = call.name.split("_",1)
                 result = await sessions[label].run_tool(tool_name,call.input)
+                print(result)
+                output_text = "\n".join(c.text for c in result.content if hasattr(c,"text"))
+                tool_call_log[call.id]={
+                    "tool":call.name,
+                    "input":call.input,
+                    "output":output_text
+                }
+                tool_results.append({
+                    "type":"tool_result",
+                    "tool_use_id":call.id,
+                    "content":output_text
+                })
+            messages.append({
+                "role":"user",
+                "content":tool_results
+            })
+        raise RuntimeError(f"aggent did not converge within {MAX_ITERATIONS} iterations")
+    
     
