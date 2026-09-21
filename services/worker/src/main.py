@@ -7,6 +7,7 @@ from db.database import SessionLocal,engine
 from db.models.review_job import ReviewJob,JobStatus
 from db.base import Base
 from config import settings
+from docker_launcher.docker_launcher import launch_sandbox_job
 
 Base.metadata.create_all(bind=engine)
  
@@ -48,18 +49,8 @@ def process_job(job_payload:dict):
         db.close()
     
     # ab yaha muje is job ko sandbox main dalna hai todo
-    
-# def _worker_loop():
-#     while True:
-#         result=queue.brpop("review-jobs",timeout=5)
-#         if result is None:
-#             continue
-#         _,raw=result
-#         print(raw)
-#         try:
-#             process_job(json.loads(raw))
-#         except Exception as e:
-#             print(f"Error processing job: {e}")
+    launch_sandbox_job(job,token)
+    print("Job has been processed to the container",flush=True)
 
 def _worker_loop():
     while True:
